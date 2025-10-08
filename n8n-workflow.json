@@ -1,0 +1,285 @@
+{
+  "name": "PepsiCo Test",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "/pepsico-routing",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "fd1ab2de-46ac-4cbb-8159-e4411c3d4cd5",
+      "name": "Webhook",
+      "webhookId": "14830459-ff64-4196-9b54-4cdfb2810dcf"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Log what we received from ServiceNow\nconsole.log('=== RECEIVED FROM SERVICENOW ===');\nconsole.log('Full input:', JSON.stringify($input.all()[0].json, null, 2));\n\n// Extract webhook data\nconst webhookData = $input.all()[0].json;\nconst body = webhookData.body || webhookData;\n\nconsole.log('Extracted body:', JSON.stringify(body, null, 2));\n\n// Ensure proper formatting\nconst route_id = String(body.route_id);\nconst truck_id = String(body.truck_id);\n\n// Parse chosen_option if it's a string\nlet chosen_option = body.chosen_option;\nif (typeof chosen_option === 'string') {\n  console.log('Parsing chosen_option from string');\n  chosen_option = JSON.parse(chosen_option);\n}\n\nconsole.log('Chosen option data:', JSON.stringify(chosen_option, null, 2));\n\n// Validate that we have all required fields\nif (!route_id || !truck_id || !chosen_option) {\n  console.error('Missing required fields');\n  return {\n    json: {\n      error: 'Missing required fields',\n      route_id: route_id,\n      truck_id: truck_id,\n      chosen_option: chosen_option\n    }\n  };\n}\n\n// Prepare formatted payload for Logistics and Retail MCP\nconst formattedPayload = {\n  route_id: route_id,\n  truck_id: truck_id,\n  chosen_option: {\n    option_id: String(chosen_option.option_id || 'opt-1'),\n    route_number: Number(chosen_option.route_number || 1),\n    distance_miles: Number(chosen_option.distance_miles || 100),\n    eta_minutes: Number(chosen_option.eta_minutes || 120)\n  }\n};\n\n// Prepare ServiceNow status update payload\nconst serviceNowPayload = {\n  route_id: route_id,\n  status: \"dispatched\"\n};\n\nconsole.log('=== FORMATTED PAYLOADS ===');\nconsole.log('Logistics/Retail:', JSON.stringify(formattedPayload, null, 2));\nconsole.log('ServiceNow:', JSON.stringify(serviceNowPayload, null, 2));\n\n// Return formatted data for AI Agent\nreturn {\n  json: {\n    logistics_retail_payload: formattedPayload,\n    servicenow_payload: serviceNowPayload,\n    instructions: `Execute these three operations in sequence:\n1. Call execute_route with logistics_retail_payload\n2. Call notify_delivery_delay with logistics_retail_payload\n3. Call update_execution_status with servicenow_payload`,\n    route_id: route_id,\n    truck_id: truck_id,\n    timestamp: new Date().toISOString()\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        208,
+        0
+      ],
+      "id": "9a76d074-6580-447c-9651-6ca4e93b9da2",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.instructions }}\n\nLogistics/Retail Payload:\n{{ JSON.stringify($json.logistics_retail_payload) }}\n\nServiceNow Payload:\n{{ JSON.stringify($json.servicenow_payload) }}",
+        "options": {
+          "systemMessage": "You are a logistics coordinator for PepsiCo. You will receive formatted payloads that need to be sent to three different MCP servers.\n\nYou have access to three tools:\n1. execute_route (Logistics MCP) - for dispatching the new route\n2. notify_delivery_delay (Retail MCP) - for customer notification\n3. update_execution_status (ServiceNow MCP) - for updating the status to dispatched\n\nWhen you receive the data:\n- Use the logistics_retail_payload for execute_route\n- Use the logistics_retail_payload for notify_delivery_delay  \n- Use the servicenow_payload for update_execution_status\n\nCall all three tools in sequence with the exact payloads provided."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        432,
+        0
+      ],
+      "id": "22e18d95-6f51-470a-9538-a51040da64e3",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -144,
+        -528
+      ],
+      "typeVersion": 1,
+      "id": "1773a267-a9f5-4ee3-9757-43418d4c319b",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -144,
+        -352
+      ],
+      "typeVersion": 1,
+      "id": "42a75ac3-2374-40a2-9bc3-830fa1755c34",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "model": "qwen.qwen3-coder-30b-a3b-v1:0",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAwsBedrock",
+      "typeVersion": 1.1,
+      "position": [
+        288,
+        208
+      ],
+      "id": "e3dd7d85-2eca-4bed-bab5-26ff5aa16168",
+      "name": "AWS Bedrock Chat Model",
+      "credentials": {
+        "aws": {
+          "id": "mBwr1qncoPxSdKeC",
+          "name": "AWS account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "endpointUrl": "http://34.197.44.143:8001/mcp",
+        "serverTransport": "httpStreamable",
+        "include": "selected",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "typeVersion": 1.1,
+      "position": [
+        576,
+        288
+      ],
+      "id": "faf6456b-2403-4a2c-94be-db905bae50a8",
+      "name": "Logistics MCP Client"
+    },
+    {
+      "parameters": {
+        "endpointUrl": "http://34.197.44.143:8002/mcp",
+        "serverTransport": "httpStreamable",
+        "include": "selected",
+        "includeTools": [
+          "notify_delivery_delay"
+        ],
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "typeVersion": 1.1,
+      "position": [
+        432,
+        480
+      ],
+      "id": "926c1f4d-2f11-4a97-86c0-e26234ae8e5c",
+      "name": "Retail MCP Client"
+    },
+    {
+      "parameters": {
+        "endpointUrl": "http://34.197.44.143:8000/mcp",
+        "serverTransport": "httpStreamable",
+        "authentication": "bearerAuth",
+        "include": "selected",
+        "includeTools": [
+          "get_route_data",
+          "update_execution_status"
+        ],
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "typeVersion": 1.1,
+      "position": [
+        720,
+        288
+      ],
+      "id": "b58bb497-c3c7-438f-84cd-17b9dbcc508c",
+      "name": "ServiceNow MCP Client1",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "Oum6NEUwik6Jr3zP",
+          "name": "Bearer Auth account"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "host": "srafat.app.n8n.cloud",
+            "user-agent": "ServiceNow/1.0",
+            "content-length": "152",
+            "accept": "application/json",
+            "accept-encoding": "gzip, br",
+            "cdn-loop": "cloudflare; loops=1; subreqs=1",
+            "cf-connecting-ip": "4.223.224.92",
+            "cf-ew-via": "15",
+            "cf-ipcountry": "SE",
+            "cf-ray": "98b7f7d56279a455-ARN",
+            "cf-visitor": "{\"scheme\":\"https\"}",
+            "cf-worker": "n8n.cloud",
+            "content-type": "application/json",
+            "x-forwarded-for": "4.223.224.92, 104.23.217.126",
+            "x-forwarded-host": "srafat.app.n8n.cloud",
+            "x-forwarded-port": "443",
+            "x-forwarded-proto": "https",
+            "x-forwarded-server": "traefik-prod-users-gwc-84-57fcbd49bc-mxt98",
+            "x-is-trusted": "yes",
+            "x-real-ip": "4.223.224.92",
+            "x-snc-integration-source": "518d1433c322a650d7299dcd2b013189"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "route_id": "703998",
+            "truck_id": "6895",
+            "chosen_option": {
+              "option_id": "opt-3",
+              "route_number": 13,
+              "distance_miles": 79,
+              "eta_minutes": 265,
+              "penalty_cost": 355
+            }
+          },
+          "webhookUrl": "https://srafat.app.n8n.cloud/webhook/pepsico-routing",
+          "executionMode": "production"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        []
+      ]
+    },
+    "AWS Bedrock Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Logistics MCP Client": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Retail MCP Client": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ServiceNow MCP Client1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "7b55bc62-2f3f-40e8-b442-74619c594d73",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "db3ffdef6ea13fe5949507845ae6d675c7c9739a11b7321992c57d06bcfc8a95"
+  },
+  "id": "u8cHtrLmID7c5tPj",
+  "tags": []
+}
