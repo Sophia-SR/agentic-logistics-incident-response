@@ -1,0 +1,337 @@
+
+ N8N WebHook 
+[
+  {
+    "headers": {
+      "host": "srafat.app.n8n.cloud",
+      "user-agent": "ServiceNow/1.0",
+      "content-length": "151",
+      "accept": "application/json",
+      "accept-encoding": "gzip, br",
+      "cdn-loop": "cloudflare; loops=1; subreqs=1",
+      "cf-connecting-ip": "4.223.224.92",
+      "cf-ew-via": "15",
+      "cf-ipcountry": "SE",
+      "cf-ray": "98b8112e83d697af-ARN",
+      "cf-visitor": "{\"scheme\":\"https\"}",
+      "cf-worker": "n8n.cloud",
+      "content-type": "application/json",
+      "x-forwarded-for": "4.223.224.92, 104.23.223.142",
+      "x-forwarded-host": "srafat.app.n8n.cloud",
+      "x-forwarded-port": "443",
+      "x-forwarded-proto": "https",
+      "x-forwarded-server": "traefik-prod-users-gwc-84-57fcbd49bc-vc9qc",
+      "x-is-trusted": "yes",
+      "x-real-ip": "4.223.224.92",
+      "x-snc-integration-source": "518d1433c322a650d7299dcd2b013189"
+    },
+    "params": {},
+    "query": {},
+    "body": {
+      "route_id": "909934",
+      "truck_id": "7455",
+      "chosen_option": {
+        "option_id": "opt-1",
+        "route_number": 11,
+        "distance_miles": 181,
+        "eta_minutes": 171,
+        "penalty_cost": 0
+      }
+    },
+    "webhookUrl": "https://srafat.app.n8n.cloud/webhook/pepsico-routing",
+    "executionMode": "production"
+  }
+]
+Code In JavaScript (parsing Webhook payload)
+INPUT 
+[
+  {
+    "headers": {
+      "host": "srafat.app.n8n.cloud",
+      "user-agent": "ServiceNow/1.0",
+      "content-length": "151",
+      "accept": "application/json",
+      "accept-encoding": "gzip, br",
+      "cdn-loop": "cloudflare; loops=1; subreqs=1",
+      "cf-connecting-ip": "4.223.224.92",
+      "cf-ew-via": "15",
+      "cf-ipcountry": "SE",
+      "cf-ray": "98b8112e83d697af-ARN",
+      "cf-visitor": "{\"scheme\":\"https\"}",
+      "cf-worker": "n8n.cloud",
+      "content-type": "application/json",
+      "x-forwarded-for": "4.223.224.92, 104.23.223.142",
+      "x-forwarded-host": "srafat.app.n8n.cloud",
+      "x-forwarded-port": "443",
+      "x-forwarded-proto": "https",
+      "x-forwarded-server": "traefik-prod-users-gwc-84-57fcbd49bc-vc9qc",
+      "x-is-trusted": "yes",
+      "x-real-ip": "4.223.224.92",
+      "x-snc-integration-source": "518d1433c322a650d7299dcd2b013189"
+    },
+    "params": {},
+    "query": {},
+    "body": {
+      "route_id": "909934",
+      "truck_id": "7455",
+      "chosen_option": {
+        "option_id": "opt-1",
+        "route_number": 11,
+        "distance_miles": 181,
+        "eta_minutes": 171,
+        "penalty_cost": 0
+      }
+    },
+    "webhookUrl": "https://srafat.app.n8n.cloud/webhook/pepsico-routing",
+    "executionMode": "production"
+  }
+]
+OUTPUT
+[
+  {
+    "logistics_retail_payload": {
+      "route_id": "909934",
+      "truck_id": "7455",
+      "chosen_option": {
+        "option_id": "opt-1",
+        "route_number": 11,
+        "distance_miles": 181,
+        "eta_minutes": 171
+      }
+    },
+    "servicenow_payload": {
+      "route_id": "909934",
+      "status": "dispatched"
+    },
+    "instructions": "Execute these three operations in sequence:\n1. Call execute_route with logistics_retail_payload\n2. Call notify_delivery_delay with logistics_retail_payload\n3. Call update_execution_status with servicenow_payload",
+    "route_id": "909934",
+    "truck_id": "7455",
+    "timestamp": "2025-10-08T19:32:58.412Z"
+  }
+]
+AI agent
+[
+  {
+    "output": "All three operations have been successfully executed:\n\n1. Route execution completed with the following details:\n   - Route ID: 909934\n   - Truck ID: 7455\n   - Chosen Option: \n     - Option ID: opt-1\n     - Route Number: 11\n     - Distance: 181 miles\n     - ETA: 171 minutes\n\n2. Delivery delay notification sent with the following details:\n   - Notification ID: 4571f91a-4210-44ad-9a49-3c2bfd1b4213\n   - Received at: 2025-10-08T19:33:02.096561Z\n   - Route ID: 909934\n   - Truck ID: 7455\n   - Chosen Option: \n     - Option ID: opt-1\n     - Route Number: 11\n     - Distance: 181 miles\n     - ETA: 171 minutes\n\n3. Execution status updated to \"dispatched\" in ServiceNow:\n   - Route ID: 909934\n   - Update successful for student ID: sn-0017\n   - Instance: https://kura-labs-jul-4728-0017.lab.service-now.com\n   - Status Code: 200\n\nAll operations have been completed successfully."
+  }
+]
+
+Logistics Client
+
+{
+"response": 
+[
+{
+"type": 
+"text",
+"text": 
+"{\n  \"ok\": true,\n  \"message\": \"route selected\",\n  \"route_id\": \"909934\",\n  \"truck_id\": \"7455\",\n  \"chosen_option\": {\n    \"option_id\": \"opt-1\",\n    \"route_number\": 11,\n    \"distance_miles\": 181,\n    \"eta_minutes\": 171\n  }\n}"
+}
+]
+}
+
+
+Retail MCP Client
+
+[
+{
+"response": [
+{
+"type": 
+"text",
+"text": 
+"{\n  \"ok\": true,\n  \"notification_id\": \"4571f91a-4210-44ad-9a49-3c2bfd1b4213\",\n  \"received_at\": \"2025-10-08T19:33:02.096561Z\",\n  \"route_id\": \"909934\",\n  \"truck_id\": \"7455\",\n  \"chosen_option\": {\n    \"option_id\": \"opt-1\",\n    \"route_number\": 11,\n    \"distance_miles\": 181,\n    \"eta_minutes\": 171\n  }\n}"
+}
+]
+}
+]
+
+
+ServiceNow MCP Client
+
+{
+"response": 
+[
+{
+"type": 
+"text",
+"text": 
+"{\n  \"route_id\": \"909934\",\n  \"updates\": [\n    {\n      \"student_id\": \"sn-0017\",\n      \"instance\": \"https://kura-labs-jul-4728-0017.lab.service-now.com\",\n      \"updated\": true,\n      \"status_code\": 200,\n      \"sys_id\": \"04dbda9c83a0f2107f44c85d50da1ef1\",\n      \"error\": null\n    }\n  ]\n}"
+}
+]
+}
+=== N8N EXECUTION LOG ===
+Workflow: PepsiCo Logistics Routing Coordination
+Status: SUCCESS
+
+================================================================================
+WEBHOOK NODE - INPUT
+================================================================================
+Received from ServiceNow Agent 2:
+
+{
+  "route_id": "909934",
+  "truck_id": "7455",
+  "chosen_option": {
+    "option_id": "opt-1",
+    "route_number": 11,
+    "distance_miles": 181,
+    "eta_minutes": 171,
+    "penalty_cost": 0
+  }
+}
+
+Headers:
+- User-Agent: ServiceNow/1.0
+- Content-Type: application/json
+- Source: x-snc-integration-source: 518d1433c322a650d7299dcd2b013189
+
+================================================================================
+CODE NODE - OUTPUT
+================================================================================
+Formatted payloads for MCP clients:
+
+Logistics & Retail Payload:
+{
+  "route_id": "909934",
+  "truck_id": "7455",
+  "chosen_option": {
+    "option_id": "opt-1",
+    "route_number": 11,
+    "distance_miles": 181,
+    "eta_minutes": 171
+  }
+}
+
+ServiceNow Payload:
+{
+  "route_id": "909934",
+  "status": "dispatched"
+}
+
+Instructions Generated:
+"Execute these three operations in sequence:
+1. Call execute_route with logistics_retail_payload
+2. Call notify_delivery_delay with logistics_retail_payload
+3. Call update_execution_status with servicenow_payload"
+
+================================================================================
+AI AGENT NODE - OUTPUT
+================================================================================
+Coordination Summary:
+
+All three operations have been successfully executed:
+
+1. Route Execution Completed:
+   - Route ID: 909934
+   - Truck ID: 7455
+   - Chosen Option:
+     * Option ID: opt-1
+     * Route Number: 11
+     * Distance: 181 miles
+     * ETA: 171 minutes
+
+2. Delivery Delay Notification Sent:
+   - Notification ID: 4571f91a-4210-44ad-9a49-3c2bfd1b4213
+   - Timestamp: 2025-10-08T19:33:02.096561Z
+   - Route ID: 909934
+   - Truck ID: 7455
+   - Chosen Option Details: Confirmed
+
+3. Execution Status Updated in ServiceNow:
+   - Route ID: 909934
+   - Student ID: sn-0017
+   - Instance: https://kura-labs-jul-4728-0017.lab.service-now.com
+   - Status Code: 200
+   - Result: Successfully updated to "dispatched"
+
+Agent Result: All operations completed successfully
+
+================================================================================
+LOGISTICS MCP CLIENT - OUTPUT
+================================================================================
+Server: http://34.197.44.143:8001/mcp
+Tool: execute_route
+
+Response:
+{
+  "ok": true,
+  "message": "route selected",
+  "route_id": "909934",
+  "truck_id": "7455",
+  "chosen_option": {
+    "option_id": "opt-1",
+    "route_number": 11,
+    "distance_miles": 181,
+    "eta_minutes": 171
+  }
+}
+
+Status: ✓ SUCCESS - Route execution confirmed by logistics provider
+
+================================================================================
+RETAIL MCP CLIENT - OUTPUT
+================================================================================
+Server: http://34.197.44.143:8002/mcp
+Tool: notify_delivery_delay
+
+Response:
+{
+  "ok": true,
+  "notification_id": "4571f91a-4210-44ad-9a49-3c2bfd1b4213",
+  "received_at": "2025-10-08T19:33:02.096561Z",
+  "route_id": "909934",
+  "truck_id": "7455",
+  "chosen_option": {
+    "option_id": "opt-1",
+    "route_number": 11,
+    "distance_miles": 181,
+    "eta_minutes": 171
+  }
+}
+
+Status: ✓ SUCCESS - Customer notification sent and confirmed
+
+================================================================================
+SERVICENOW MCP CLIENT - OUTPUT
+================================================================================
+Server: http://34.197.44.143:8000/mcp
+Tool: update_execution_status
+Authentication: Bearer Token (configured)
+
+Response:
+{
+  "route_id": "909934",
+  "updates": [
+    {
+      "student_id": "sn-0017",
+      "instance": "https://kura-labs-jul-4728-0017.lab.service-now.com",
+      "updated": true,
+      "status_code": 200,
+      "sys_id": "04dbda9c83a0f2107f44c85d50da1ef1",
+      "error": null
+    }
+  ]
+}
+
+Status: ✓ SUCCESS - ServiceNow delivery record updated to "dispatched"
+
+================================================================================
+EXECUTION SUMMARY
+================================================================================
+Workflow Status: COMPLETED SUCCESSFULLY
+Total Execution Time: ~4 seconds
+Route ID Processed: 909934
+Truck ID: 7455
+
+Operations Completed:
+1. ✓ Logistics Provider - Route executed
+2. ✓ Retail Customer - Delay notification sent
+3. ✓ ServiceNow - Status updated to "dispatched"
+
+All external systems confirmed successful coordination.
+End-to-end supply chain incident response completed.
+
+================================================================================
+END OF LOG
+================================================================================
