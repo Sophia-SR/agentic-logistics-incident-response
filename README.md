@@ -105,11 +105,11 @@ Calculates financial penalties for delivery delay route options based on custome
 - Progress workflow status from "pending" to "calculated"
 
 **Tools:**
-1. Lookup Supply Agreement (Record Operation)
-2. Calculate Financial Impact (Script)
-3. Update Delivery Status (Record/Script)
-4. Create Incident (Script)
-5. Link Incident (Script)
+1. Get Routes and Customer ID
+2. Query Supply Agreement
+3. Calculate Impact
+4. Create Incident and Link
+5. Update Delivery Status
 
 **Agent 2: Route Decision Agent**
 
@@ -124,11 +124,11 @@ Selects optimal routes based on financial analysis and coordinates external exec
 - Progress workflow status from "calculated" to "approved"
 
 **Tools:**
-1. Read Calculated Impact (Script)
-2. Write Chosen Option (Script)
-3. Update Incident Priority (Script)
-4. Update Delivery Status (Record/Script)
-5. Call n8n Webhook (Script)
+1. Read Calculated Impact
+2. Write Chosen Option
+3. Update Incident Priority
+4. Update Delivery Delay Status
+5. Call n8n Webhook
 
 #### Use Case Configuration
 
