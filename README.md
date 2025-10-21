@@ -370,13 +370,8 @@ Based on penalty cost of selected route:
 6. Link Incident to delivery record
 7. Update record (calculated_impact JSON, status="calculated")
 
-**Output Screenshot:**
-
-![Agent 1 Output](screenshots/agent1-output.png)
 
 ### Agent 2: Route Decision
-
-![Agent 2 Workflow](screenshots/agent2-workflow.png)
 
 **Process:**
 
@@ -388,17 +383,11 @@ Based on penalty cost of selected route:
 6. Update status to "approved"
 7. Call n8n Webhook (with route decision)
 
-**Output Screenshot:**
-
-![Agent 2 Output](screenshots/agent2-output.png)
-
 ---
 
 ## External Integration
 
 ### n8n Workflow Execution
-
-![n8n Workflow](screenshots/n8n-workflow.png)
 
 **Execution Flow:**
 
@@ -409,11 +398,6 @@ Based on penalty cost of selected route:
 5. ServiceNow MCP updates delivery record to "dispatched"
 6. Response returns success confirmation
 
-**Sample Execution Log:**
-
-![n8n Execution](screenshots/n8n-execution.png)
-
----
 
 ## Testing & Validation
 
@@ -439,19 +423,6 @@ Based on penalty cost of selected route:
 | 9 | n8n | Calls 3 MCP clients | ✅ |
 | 10 | n8n | Updates status to "dispatched" | ✅ |
 
-### Evidence Records
-
-**Completed Delivery Record:**
-
-![Completed Record](screenshots/completed-record.png)
-
-**Supply Agreement Record:**
-
-![Supply Agreement](screenshots/supply-agreement.png)
-
-**Created Incident:**
-
-![Incident Record](screenshots/incident-record.png)
 
 ### Status Progression
 
@@ -607,16 +578,7 @@ record    impact     choice       final
 ├── n8n-workflow.json (n8n workflow export)
 ├── n8n-execution.log (sample execution logs)
 ├── Diagram.png (architecture diagram)
-└── screenshots/
-    ├── agent1-workflow.png
-    ├── agent1-output.png
-    ├── agent2-workflow.png
-    ├── agent2-output.png
-    ├── n8n-workflow.png
-    ├── n8n-execution.png
-    ├── completed-record.png
-    ├── supply-agreement.png
-    └── incident-record.png
+  
 ```
 
 ### Implementation Steps Summary
